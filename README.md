@@ -32,18 +32,6 @@ directory.
 Example: gitignore Python -> resulting in a new .gitignore file for Python.
 
 Usage:
-  gitignore [flags]
-
-Flags:
-  -h, --help   help for gitignore
-[roald@laptop gitignore]$ vim cmd/root.go
-[roald@laptop gitignore]$ go run main.go --help
-Gitignore will create a new .gitignore file in the current working
-directory.
-
-Example: gitignore Python -> resulting in a new .gitignore file for Python.
-
-Usage:
   gitignore [language name] [flags]
 
 Flags:
