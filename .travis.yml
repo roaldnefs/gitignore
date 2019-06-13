@@ -26,3 +26,19 @@ script:
   - go vet $(go list ./... | grep -v /vendor/)
   - go test -v -race ./...
   - if [ "${LATEST}" = "true" ]; then gox -os="linux darwin" -arch="amd64" -output="{{.Dir}}.{{.OS}}.{{.Arch}}" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...; fi
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    # The *encrypted* GitHub key, as the output of the Travis CI CLI tool.
+    secure: "uw95yOwPiWEfMGR67yyGRDpGJ6baml78Ilaxbz+KohTAoKjOX6dBJDg2itU5eun2WVPMo8wPVgT9t2l+JVKw63Ph0a4BPZtTfEp3ggDECtsNrPkox2NhU8rAVeFjDgnBh56rmMbD411k6+uQEmvINAWxXklyNBMNn6mr0fHcc1UjRGqY/cOfnEe7wfTdJ+KcD8p0l3kkrY6WcF2LcRyLWkVkxQauXTuRAiL1stIoAeuMJbQ+jkOhSjr84vT6JfMl+mPI3sUHhn0fQATETcYFUrBRKludEmfQIjp7yMZunJdLgu1z72rPa+ZP6i/DgJN/piVyKug1fgnDUm93VwsI4F/kCU82L/0N8AzP7+I62IklFwYUfUq686WHAXzwIVHbdkvIrOBWVr8dC4SpTFN60kJFkaJKXMuVjENrNXI0EwVAwlpyzRe6UJZhE8l1nio7UfzANsf5fPvuL13vS7g/MMcdYIqnhy0Yn0hWtJmEb7vHH4htqibBub+d5dc9pOl7gMQIUukBUUXoea3QQBCSQXoqiqpVeGMEYE7kDzjyBp9SWm7HDwlgYK1ems6s926WeTe60cpnPL25ghVHFjtFBCAYn5NjSHpJx+2axqqh+v74oPTtPteunVRgVaNu4XZYgxYdwaRaA1zZY8wSqFe4PTDGB/9/NEkIe0jAHaxZcxU="
+  file:
+    - gitignore.darwin.amd64
+    - gitignore.linus.amd64
+  on:
+    # What to repository to build
+    repo: roaldnefs/gitignore
+    # Only build binaries for tagged commits
+    tags: true
+    condition: $LATEST = true
