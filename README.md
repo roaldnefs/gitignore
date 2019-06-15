@@ -36,4 +36,7 @@ Usage:
 
 Flags:
   -h, --help   help for gitignore
+
+$ gitignore go
+.gitignore created at /home/roald/go/src/github.com/roaldnefs/gitignore/.gitignore
 ```

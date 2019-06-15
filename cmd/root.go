@@ -3,11 +3,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
+	"github.com/google/go-github/github"
 	"github.com/spf13/cobra"
 )
 
@@ -20,31 +23,78 @@ directory.
 
 Example: gitignore Python -> resulting in a new .gitignore file for Python.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// Ensure an argument is given
 		if len(args) < 1 {
 			fmt.Println("gitignore needs at least one argument")
 			os.Exit(1)
 		}
 
+		// Get the working directory
 		wd, err := os.Getwd()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		// TODO validate the argument
-		language := args[0]
+		// Get the preferred languange from the argument
+		search := strings.ToLower(args[0]) + ".gitignore"
+		filePath := wd + "/.gitignore"
 
-		// TODO download the gitignore from:
-		// https://raw.githubusercontent.com/github/gitignore/master/<language>.gitignore
-		filepath := wd + "/.gitignore"
-
-		err = downloadGitignore(filepath, language)
+		// Fetch gitignore templates from the github.com/github/gitignore repository
+		client := github.NewClient(nil)
+		_, repositoryContent, _, err := client.Repositories.GetContents(context.Background(), "github", "gitignore", "", nil)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		fmt.Printf(".gitignore created at %s\n", wd)
+		var gitignore *github.RepositoryContent
+
+		// Compare the argument to the gitignore files available in the repository
+		for _, file := range repositoryContent {
+			if strings.Compare(strings.ToLower(*file.Name), search) == 0 {
+				gitignore = file
+				break
+			}
+		}
+
+		// Throw an error if none matching gitignore file is found
+		if gitignore == nil {
+			fmt.Println("no matching gitignore found")
+			os.Exit(1)
+		}
+
+		// Get the download URL for the gitignore template
+		downloadURL := *gitignore.DownloadURL
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		// Get the gitignore template
+		response, err := http.Get(downloadURL)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer response.Body.Close()
+
+		// Create the local .gitignore file
+		out, err := os.Create(filePath)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer out.Close()
+
+		// Write to contents of the gitignore template to the local .gitignore file
+		_, err = io.Copy(out, response.Body)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Printf(".gitignore created at %s\n", filePath)
 	},
 }
 
@@ -67,30 +117,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-// downloadGitignore will download a raw .gitignore file from GitHub to a local file.
-func downloadGitignore(filepath string, language string) error {
-	// Build the URL
-	url := "https://raw.githubusercontent.com/github/gitignore/master/" + language + ".gitignore"
-
-	// Get the data
-	response, err := http.Get(url)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer response.Body.Close()
-
-	// Create the local .gitignore file
-	out, err := os.Create(filepath)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer out.Close()
-
-	// Write the body to the .gitignore file
-	_, err = io.Copy(out, response.Body)
-	return err
 }
