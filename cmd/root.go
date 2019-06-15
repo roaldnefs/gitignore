@@ -78,6 +78,19 @@ Example: gitignore Python -> resulting in a new .gitignore file for Python.`,
 			}
 		}
 
+		// Check if the user is in the root of a git repository
+		gitDirectory := path.Join(wd, ".git")
+		if exists, err := exists(gitDirectory); !exists {
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			// Exit if the user doesn't want to create a .gitignore file in the current directory
+			if !askForConfirmation("This doesn't seem like a git repository. Do you want to continue?") {
+				os.Exit(0)
+			}
+		}
+
 		// Get the download URL for the gitignore template
 		downloadURL := *gitignore.DownloadURL
 		if err != nil {
