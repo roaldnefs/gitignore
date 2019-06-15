@@ -3,11 +3,13 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/google/go-github/github"
@@ -38,7 +40,7 @@ Example: gitignore Python -> resulting in a new .gitignore file for Python.`,
 
 		// Get the preferred languange from the argument
 		search := strings.ToLower(args[0]) + ".gitignore"
-		filePath := wd + "/.gitignore"
+		filePath := path.Join(wd, ".gitignore")
 
 		// Fetch gitignore templates from the github.com/github/gitignore repository
 		client := github.NewClient(nil)
@@ -62,6 +64,18 @@ Example: gitignore Python -> resulting in a new .gitignore file for Python.`,
 		if gitignore == nil {
 			fmt.Println("no matching gitignore found")
 			os.Exit(1)
+		}
+
+		// Check for existing .gitignore file
+		if exists, err := exists(filePath); exists {
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			// Exit if the user doesn't want to overwrite the existing .gitignore file
+			if !askForConfirmation("Do you want to overwrite the existing .gitignore?") {
+				os.Exit(0)
+			}
 		}
 
 		// Get the download URL for the gitignore template
@@ -117,4 +131,52 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+// askForConfigrmation asks the user for confirmation
+func askForConfirmation(s string) bool {
+	r := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Printf("%s [y/n]: ", s)
+
+		answer, err := r.ReadString('\n')
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		answer = strings.ToLower(strings.TrimSpace(answer))
+
+		yesResponses := []string{"y", "yes"}
+		noResponses := []string{"n", "no"}
+
+		if stringInSlice(answer, yesResponses) {
+			return true
+		} else if stringInSlice(answer, noResponses) {
+			return false
+		}
+	}
+}
+
+// stringInSlice checks is the string is in the list
+func stringInSlice(s string, list []string) bool {
+	for _, entry := range list {
+		if entry == s {
+			return true
+		}
+	}
+	return false
+}
+
+// exists checks if the given path exists
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
 }
