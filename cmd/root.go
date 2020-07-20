@@ -16,6 +16,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// global indicates to search globally useful gitignores
+var global bool
+
 // rootCmd represents the root command
 var rootCmd = &cobra.Command{
 	Use:   "gitignore [language name]",
@@ -42,9 +45,15 @@ Example: gitignore Python -> resulting in a new .gitignore file for Python.`,
 		search := strings.ToLower(args[0]) + ".gitignore"
 		filePath := path.Join(wd, ".gitignore")
 
+		// Build path for gitignore templates based on flags
+		repositoryPath := ""
+		if global {
+			repositoryPath = "Global/"
+		}
+
 		// Fetch gitignore templates from the github.com/github/gitignore repository
 		client := github.NewClient(nil)
-		_, repositoryContent, _, err := client.Repositories.GetContents(context.Background(), "github", "gitignore", "", nil)
+		_, repositoryContent, _, err := client.Repositories.GetContents(context.Background(), "github", "gitignore", repositoryPath, nil)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -135,15 +144,7 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rootCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolVarP(&global, "global", "g", false, "Search globally useful gitignores")
 }
 
 // askForConfigrmation asks the user for confirmation
