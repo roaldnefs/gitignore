@@ -35,7 +35,8 @@ Usage:
   gitignore [language name] [flags]
 
 Flags:
-  -h, --help   help for gitignore
+  -g, --global   Search globally useful gitignores
+  -h, --help     help for gitignore
 
 $ gitignore go
 .gitignore created at /home/roald/go/src/github.com/roaldnefs/gitignore/.gitignore
