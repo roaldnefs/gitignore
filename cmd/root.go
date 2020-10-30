@@ -76,14 +76,15 @@ Example: gitignore Python -> resulting in a new .gitignore file for Python.`,
 		}
 
 		// Check for existing .gitignore file
+		append := false
 		if exists, err := exists(filePath); exists {
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			// Exit if the user doesn't want to overwrite the existing .gitignore file
-			if !askForConfirmation("Do you want to overwrite the existing .gitignore?") {
-				os.Exit(0)
+			// Ask the user to append the existing .gitignore file otherwise is will be overwritten
+			if askForConfirmation("Do you want to append to the existing .gitignore?") {
+				append = true
 			}
 		}
 
@@ -115,8 +116,14 @@ Example: gitignore Python -> resulting in a new .gitignore file for Python.`,
 		}
 		defer response.Body.Close()
 
+		// Set flags used for writing to the file
+		fileFlag := os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+		if append {
+			fileFlag = os.O_WRONLY | os.O_CREATE | os.O_APPEND
+		}
+
 		// Create the local .gitignore file
-		out, err := os.Create(filePath)
+		out, err := os.OpenFile(filePath, fileFlag, 0600)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
