@@ -41,7 +41,7 @@ Example: gitignore Python -> resulting in a new .gitignore file for Python.`,
 			os.Exit(1)
 		}
 
-		// Get the preferred languange from the argument
+		// Get the preferred language from the argument
 		search := strings.ToLower(args[0]) + ".gitignore"
 		filePath := path.Join(wd, ".gitignore")
 
