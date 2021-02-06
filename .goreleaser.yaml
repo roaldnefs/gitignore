@@ -1,0 +1,19 @@
+project_name: gitignore
+builds:
+  - env: [CGO_ENABLED=0]
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+nfpms:
+- maintainer: Roald Nefs <info@roaldnefs.com>
+  description: Tool for downloading .gitignore templates.
+  homepage: https://github.com/roaldnefs/gitignore
+  license: MIT
+  formats:
+  - deb
+  - rpm
+  - apk
