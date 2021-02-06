@@ -19,7 +19,7 @@
             alt="GitHub contributors">
     </a>
     </br>
-    <b>gitignore</b> is a tool for downloading `.gitignore` templates..
+    <b>gitignore</b> is a tool for downloading `.gitignore` templates.
     <br />
     <a href="https://github.com/roaldnefs/gitignore/releases"><strong>Download Latest Release »</strong></a>
     <br />
