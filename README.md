@@ -11,7 +11,7 @@
             alt="GitHub - License">
     </a>
     <a href="https://github.com/roaldnefs/gitignore/actions">
-        <img src="https://img.shields.io/github/workflow/status/roaldnefs/gitignore/build?style=for-the-badge&color=blue"
+        <img src="https://img.shields.io/github/actions/workflow/status/roaldnefs/gitignore/build.yaml?style=for-the-badge&color=blue"
             alt="GitHub Workflow Status">
     </a>
     <a href="https://github.com/roaldnefs/gitignore/graphs/contributors">
