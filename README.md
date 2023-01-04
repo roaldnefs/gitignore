@@ -46,7 +46,7 @@ For installation instructions from binaries please visit the [Releases Page](htt
 ### Via Go
 
 ```console
-$ go get github.com/roaldnefs/gitignore
+$ go install github.com/roaldnefs/gitignore@latest
 ```
 
 ## Usage
